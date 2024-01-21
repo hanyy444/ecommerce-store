@@ -1,6 +1,6 @@
 "use client";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
@@ -31,14 +31,40 @@ const Summary = () => {
   );
 
   const onCheckout = async () => {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/checkout`,
-      {
-        productIds: items.map((item) => item.id),
-      }
-    );
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/checkout`,
+        {
+          productIds: items.map((item) => item.id),
+        }
+      );
 
-    window.location = response.data.url;
+      window.location = response.data.url;
+    } catch (error) {
+      // Check if the error is an AxiosError
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError;
+
+        // Now you can access properties specific to AxiosError
+        console.error("Error during checkout:", axiosError);
+
+        // Handle the error, for example, show a user-friendly message
+        toast.error(
+          "An error occurred during checkout. Please try again later."
+        );
+      } else {
+        // Handle other types of errors if needed
+        console.error(
+          "Non-Axios error during checkout:",
+          error
+        );
+
+        // Handle the error, for example, show a user-friendly message
+        toast.error(
+          "An error occurred during checkout. Please try again later."
+        );
+      }
+    }
   };
 
   return (
