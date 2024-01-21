@@ -3,13 +3,14 @@
 import axios, { AxiosError } from "axios";
 import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import Button from "./ui/button";
 import Currency from "./ui/currency";
 import useCart from "@/hooks/use-cart";
 
 const Summary = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const items = useCart((state) => state.items);
   const removeAll = useCart((state) => state.removeAll);
@@ -32,6 +33,7 @@ const Summary = () => {
 
   const onCheckout = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/checkout`,
         {
@@ -64,6 +66,8 @@ const Summary = () => {
           "An error occurred during checkout. Please try again later."
         );
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -81,7 +85,7 @@ const Summary = () => {
         </div>
       </div>
       <Button
-        disabled={!items.length}
+        disabled={!items.length || isLoading}
         onClick={onCheckout}
         className="w-full mt-6"
       >
