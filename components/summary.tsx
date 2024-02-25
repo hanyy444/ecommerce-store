@@ -1,7 +1,10 @@
 "use client";
 
 import axios, { AxiosError } from "axios";
-import { useSearchParams } from "next/navigation";
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 
@@ -12,6 +15,7 @@ import useCart from "@/hooks/use-cart";
 const Summary = () => {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const items = useCart((state) => state.items);
   const removeAll = useCart((state) => state.removeAll);
 
@@ -19,25 +23,31 @@ const Summary = () => {
     if (searchParams.get("success")) {
       toast.success("Payment completed");
       removeAll();
+      router.push("/");
     }
-
-    if (searchParams.get("canceled")) {
-      toast.error("Something went wrong.");
-    }
-  }, [searchParams, removeAll]);
+    // if (searchParams.get("canceled")) {
+    //   toast.success("Canceled.");
+    // }
+  }, [searchParams, removeAll, router]);
 
   const totalPrice = items.reduce(
-    (total, item) => total + Number(item.price),
+    (total, item) =>
+      total +
+      Number(item.quantity * parseFloat(item.price)),
     0
   );
 
   const onCheckout = async () => {
     try {
       setIsLoading(true);
+
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/checkout`,
         {
-          productIds: items.map((item) => item.id),
+          orderItems: items.map((item) => ({
+            productId: item.id,
+            quantity: item.quantity,
+          })),
         }
       );
 

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import toast from "react-hot-toast";
-import { X } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 
 import IconButton from "@/components/ui/icon-button";
 import Currency from "@/components/ui/currency";
@@ -20,6 +20,16 @@ const CartItem: React.FC<CartItemProps> = ({ data }) => {
     cart.removeItem(data.id);
   };
 
+  const onAdd = () => {
+    cart.addItem(data);
+  };
+
+  const onDecrease = () => {
+    data.quantity === 1
+      ? toast.error("Minimum quantity reached.")
+      : cart.onDecrease(data.id);
+  };
+
   return (
     <li className="flex py-6 border-b">
       <div className="relative h-52 w-52 rounded-md overflow-hidden sm:h-48">
@@ -31,7 +41,7 @@ const CartItem: React.FC<CartItemProps> = ({ data }) => {
         />
       </div>
       <div className="relative ml-4 flex flex-1 flex-col justify-between sm:ml-6">
-        <div className="absolute z-10 right-0 top-0">
+        <div className="absolute z-10 right-0 top-0 flex gap-2">
           <IconButton
             onClick={onRemove}
             icon={<X size={15} />}
@@ -43,7 +53,6 @@ const CartItem: React.FC<CartItemProps> = ({ data }) => {
               {data.name}
             </p>
           </div>
-
           <div className="mt-l flex text-sm">
             <p className="text-gray-500">
               {data.color.name}
@@ -53,6 +62,23 @@ const CartItem: React.FC<CartItemProps> = ({ data }) => {
             </p>
           </div>
           <Currency value={data.price} />
+        </div>
+        <div className="flex flex-col gap-2 self-end">
+          <div className="flex items-center justify-end gap-2">
+            <p className="text-gray-500">Quantity:</p>
+            <IconButton
+              onClick={onAdd}
+              icon={<Plus size={15} />}
+            />
+            <p className="text-gray-500">{data.quantity}</p>
+            <IconButton
+              onClick={onDecrease}
+              icon={<Minus size={15} />}
+            />
+          </div>
+          <p className="font-semibold text-lg">
+            Limited Stock: {data.stock}
+          </p>
         </div>
       </div>
     </li>

@@ -14,11 +14,19 @@ export interface Product {
     id: string;
     category: Category;
     name: string;
+    stock: number;
     price: string
     isFeatured: boolean;
     size: Size;
     color: Color;
     images: Image[]
+    quantity: number
+}
+
+export interface OrderItem {
+    id: string;
+    productId: string;
+    quantity: number;
 }
 
 export interface Image {
